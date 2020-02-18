@@ -3,7 +3,13 @@ uuid = "2133526b-2bfb-4018-ac12-889fb3908a75"
 authors = ["Chris de Graaf <chrisadegraaf@gmail.com>"]
 version = "0.1.0"
 
+[deps]
+BinaryProvider = "b99e7846-7c00-51b0-8f62-c81ae34c0232"
+Libdl = "8f399da3-3557-5675-b5ff-fb832c97cbdb"
+libsodium_jll = "a9144af2-ca23-56d9-984f-0d03f7b5ccf8"
+
 [compat]
+BinaryProvider = "0.5"
 julia = "1"
 
 [extras]
