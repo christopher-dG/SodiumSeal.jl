@@ -1,7 +1,8 @@
-using SodiumSeal: base64encode, base64decode, keypair, seal, unseal
+using Base64: base64encode
+using SodiumSeal: KeyPair, seal, unseal
 using Test
 
-const K = keypair()
+const K = KeyPair()
 const M = rand(UInt8, 100)
 
 @testset "SodiumSeal.jl" begin

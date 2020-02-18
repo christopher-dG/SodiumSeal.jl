@@ -9,7 +9,7 @@ SodiumSeal wraps [libsodium](https://download.libsodium.org/doc)'s [sealed boxes
 ```jl
 julia> using SodiumSeal
 
-julia> k = keypair()
+julia> k = KeyPair()
 KeyPair(...)
 
 julia> plaintext = rand(UInt8, 4)

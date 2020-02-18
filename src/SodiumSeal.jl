@@ -14,7 +14,6 @@ end
 
 export
     KeyPair,
-    keypair,
     seal,
     unseal
 
@@ -45,9 +44,9 @@ end
 ### Key pairs ###
 
 """
-    KeyPair(public[, secret])
+    KeyPair([public[, secret]])
 
-Construct a new `KeyPair` with existing keys.
+Construct a new `KeyPair` with existing keys, or generate a new one.
 If the keys are `AbstractString`s, they are assumed to be Base64-encoded.
 If you are only interested in encrypting, you need not supply the secret key.
 """
@@ -60,27 +59,21 @@ KeyPair(public) = KeyPair(public, [])
 KeyPair(public::AbstractString) = KeyPair(public, "")
 KeyPair(public::AbstractString, secret::AbstractString) =
     KeyPair(base64decode(public), base64decode(secret))
-
-Base.show(io::IO, k::KeyPair) = print(io, "KeyPair(...)")
-
-"""
-    keypair() -> KeyPair
-
-Generate a new key pair.
-"""
-function keypair()
-    pk = Vector{UInt8}(undef, PUBLICKEYBYTES[])
-    sk = Vector{UInt8}(undef, SECRETKEYBYTES[])
+function KeyPair()
+    public = Vector{UInt8}(undef, PUBLICKEYBYTES[])
+    secret = Vector{UInt8}(undef, SECRETKEYBYTES[])
 
     @check 0 ccall(
         (:crypto_box_keypair, libsodium),
         Cint,
         (Ptr{Cuchar}, Ptr{Cuchar}),
-        pointer(pk), pointer(sk),
+        pointer(public), pointer(secret),
     )
 
-    return KeyPair(pk, sk)
+    return KeyPair(public, secret)
 end
+
+Base.show(io::IO, k::KeyPair) = print(io, "KeyPair(...)")
 
 ### Encryption ###
 
