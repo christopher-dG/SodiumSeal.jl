@@ -12,11 +12,17 @@ else
     end
 end
 
-export seal
+export
+    KeyPair,
+    keypair,
+    seal,
+    unseal
 
 using Base64: base64encode, base64decode
 
 const SEALBYTES = Ref{Csize_t}()
+const PUBLICKEYBYTES = Ref{Csize_t}()
+const SECRETKEYBYTES = Ref{Csize_t}()
 
 ### Errors ###
 
@@ -36,11 +42,60 @@ macro check(allowed, ex)
     end
 end
 
+### Key pairs ###
+
+"""
+    KeyPair(public[, secret])
+
+Construct a new `KeyPair` with existing keys.
+If the keys are `AbstractString`s, they are assumed to be Base64-encoded.
+If you are only interested in encrypting, you need not supply the secret key.
+"""
+struct KeyPair
+    public::Vector{Cuchar}
+    secret::Vector{Cuchar}
+end
+
+KeyPair(public) = KeyPair(public, [])
+KeyPair(public::AbstractString) = KeyPair(public, "")
+KeyPair(public::AbstractString, secret::AbstractString) =
+    KeyPair(base64decode(public), base64decode(secret))
+
+Base.show(io::IO, k::KeyPair) = print(io, "KeyPair(...)")
+
+"""
+    keypair() -> KeyPair
+
+Generate a new key pair.
+"""
+function keypair()
+    pk = Vector{UInt8}(undef, PUBLICKEYBYTES[])
+    sk = Vector{UInt8}(undef, SECRETKEYBYTES[])
+
+    @check 0 ccall(
+        (:crypto_box_keypair, libsodium),
+        Cint,
+        (Ptr{Cuchar}, Ptr{Cuchar}),
+        pointer(pk), pointer(sk),
+    )
+
+    return KeyPair(pk, sk)
+end
+
 ### Encryption ###
 
-seal(plaintext, public_key::AbstractString) =
-    base64encode(seal(plaintext, base64decode(public_key)))
-function seal(plaintext, public_key)
+"""
+    seal(plaintext, keypair::KeyPair) -> Union{String, Vector{UInt8}}
+
+Encrypt some data.
+
+If `plaintext` is an `AbstractString`, it is assumed to be Base64-encoded,
+and the output is also a Base64-encoded `String`.
+Otherwise, it is a `Vector{UInt8}`.
+"""
+seal(plaintext::AbstractString, keypair::KeyPair) =
+    base64encode(seal(base64decode(plaintext), keypair))
+function seal(plaintext, keypair::KeyPair)
     len = length(plaintext)
     dest = Vector{Cuchar}(undef, SEALBYTES[] + len)
 
@@ -48,7 +103,34 @@ function seal(plaintext, public_key)
         (:crypto_box_seal, libsodium),
         Cint,
         (Ptr{Cuchar}, Ptr{Cuchar}, Culonglong, Ptr{Cuchar}),
-        pointer(dest), pointer(plaintext), len, pointer(public_key),
+        pointer(dest), pointer(plaintext), len, pointer(keypair.public),
+    )
+
+    return dest
+end
+
+### Decryption ###
+
+"""
+    unseal(ciphertext, keypair::KeyPair) -> Union{String, Vector{UInt8}}
+
+Decrypt some data.
+
+If `ciphertext` is an `AbstractString`, it is assumed to be Base64-encoded,
+and the output is also a Base64-encoded `String`.
+Otherwise, it is a `Vector{UInt8}`.
+"""
+unseal(ciphertext::AbstractString, keypair::KeyPair) =
+    base64encode(unseal(base64decode(ciphertext), keypair))
+function unseal(ciphertext, keypair)
+    len = length(ciphertext)
+    dest = Vector{Cuchar}(undef, len - SEALBYTES[])
+
+    @check 0 ccall(
+        (:crypto_box_seal_open, libsodium),
+        Cint,
+        (Ptr{Cuchar}, Ptr{Cuchar}, Culonglong, Ptr{Cuchar}, Ptr{Cuchar}),
+        pointer(dest), pointer(ciphertext), len, pointer(keypair.public), pointer(keypair.secret),
     )
 
     return dest
@@ -58,7 +140,11 @@ end
 
 function __init__()
     code = @check (0, 1) ccall((:sodium_init, libsodium), Cint, ())
-    code == 0 && (SEALBYTES[] = ccall((:crypto_box_sealbytes, libsodium), Csize_t, ()))
+    if code == 0
+        SEALBYTES[] = ccall((:crypto_box_sealbytes, libsodium), Csize_t, ())
+        PUBLICKEYBYTES[] = ccall((:crypto_box_publickeybytes, libsodium), Csize_t, ())
+        SECRETKEYBYTES[] = ccall((:crypto_box_secretkeybytes, libsodium), Csize_t, ())
+    end
 end
 
 end
