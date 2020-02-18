@@ -1,5 +1,4 @@
 @static if VERSION < v"1.3"
-
     using BinaryProvider # requires BinaryProvider 0.3.0 or later
 
     # Parse some basic command-line arguments
