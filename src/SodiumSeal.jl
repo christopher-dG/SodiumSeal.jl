@@ -60,8 +60,8 @@ KeyPair(public::AbstractString) = KeyPair(public, "")
 KeyPair(public::AbstractString, secret::AbstractString) =
     KeyPair(base64decode(public), base64decode(secret))
 function KeyPair()
-    public = Vector{UInt8}(undef, PUBLICKEYBYTES[])
-    secret = Vector{UInt8}(undef, SECRETKEYBYTES[])
+    public = Vector{Cuchar}(undef, PUBLICKEYBYTES[])
+    secret = Vector{Cuchar}(undef, SECRETKEYBYTES[])
 
     @check 0 ccall(
         (:crypto_box_keypair, libsodium),
