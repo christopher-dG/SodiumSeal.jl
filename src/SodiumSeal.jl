@@ -67,7 +67,7 @@ function KeyPair()
         (:crypto_box_keypair, libsodium),
         Cint,
         (Ptr{Cuchar}, Ptr{Cuchar}),
-        pointer(public), pointer(secret),
+        public, secret,
     )
 
     return KeyPair(public, secret)
@@ -96,7 +96,7 @@ function seal(plaintext, keypair::KeyPair)
         (:crypto_box_seal, libsodium),
         Cint,
         (Ptr{Cuchar}, Ptr{Cuchar}, Culonglong, Ptr{Cuchar}),
-        pointer(dest), pointer(plaintext), len, pointer(keypair.public),
+        dest, plaintext, len, keypair.public,
     )
 
     return dest
@@ -123,7 +123,7 @@ function unseal(ciphertext, keypair)
         (:crypto_box_seal_open, libsodium),
         Cint,
         (Ptr{Cuchar}, Ptr{Cuchar}, Culonglong, Ptr{Cuchar}, Ptr{Cuchar}),
-        pointer(dest), pointer(ciphertext), len, pointer(keypair.public), pointer(keypair.secret),
+        dest, ciphertext, len, keypair.public, keypair.secret,
     )
 
     return dest
