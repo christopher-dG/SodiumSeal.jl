@@ -12,10 +12,7 @@ else
     end
 end
 
-export
-    KeyPair,
-    seal,
-    unseal
+export KeyPair, seal, unseal
 
 using Base64: base64encode, base64decode
 
@@ -67,7 +64,8 @@ function KeyPair()
         (:crypto_box_keypair, libsodium),
         Cint,
         (Ptr{Cuchar}, Ptr{Cuchar}),
-        public, secret,
+        public,
+        secret,
     )
 
     return KeyPair(public, secret)
@@ -96,7 +94,10 @@ function seal(plaintext, keypair::KeyPair)
         (:crypto_box_seal, libsodium),
         Cint,
         (Ptr{Cuchar}, Ptr{Cuchar}, Culonglong, Ptr{Cuchar}),
-        dest, plaintext, len, keypair.public,
+        dest,
+        plaintext,
+        len,
+        keypair.public,
     )
 
     return dest
@@ -123,7 +124,11 @@ function unseal(ciphertext, keypair)
         (:crypto_box_seal_open, libsodium),
         Cint,
         (Ptr{Cuchar}, Ptr{Cuchar}, Culonglong, Ptr{Cuchar}, Ptr{Cuchar}),
-        dest, ciphertext, len, keypair.public, keypair.secret,
+        dest,
+        ciphertext,
+        len,
+        keypair.public,
+        keypair.secret,
     )
 
     return dest
