@@ -3,6 +3,8 @@
 [![Stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://christopher-dG.github.io/SodiumSeal.jl/stable)
 [![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://christopher-dG.github.io/SodiumSeal.jl/dev)
 [![Build Status](https://travis-ci.com/christopher-dG/SodiumSeal.jl.svg?branch=master)](https://travis-ci.com/christopher-dG/SodiumSeal.jl)
+[![Build Status](https://cloud.drone.io/api/badges/christopher-dG/SodiumSeal.jl/status.svg)](https://cloud.drone.io/christopher-dG/SodiumSeal.jl)
+[![Build Status](https://api.cirrus-ci.com/github/christopher-dG/SodiumSeal.jl.svg)](https://cirrus-ci.com/github/christopher-dG/SodiumSeal.jl)
 [![Codecov](https://codecov.io/gh/christopher-dG/SodiumSeal.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/christopher-dG/SodiumSeal.jl)
 
 SodiumSeal wraps [libsodium](https://download.libsodium.org/doc)'s [sealed boxes](https://download.libsodium.org/doc/public-key_cryptography/sealed_boxes).
