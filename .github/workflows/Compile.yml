@@ -7,6 +7,7 @@ jobs:
         os:
           - macos-latest
           - ubuntu-latest
+          - windows-latest
     runs-on: ${{ matrix.os }}
     steps:
       - uses: julia-actions/setup-julia@v1
@@ -14,7 +15,8 @@ jobs:
           version: 1.3
       - uses: actions/checkout@v2
       - name: Compile
-        run: julia --project -e '
+        run: |
+            julia --project -e '
                using Pkg;
                Pkg.add("PackageCompiler");
                using PackageCompiler;
@@ -23,5 +25,7 @@ jobs:
                    sysimage_path="sys.so",
                    precompile_execution_file="precompile.jl",
                );'
+        shell: bash
       - name: Test
         run: julia -Jsys.so --project -e 'using Pkg; Pkg.test()'
+        shell: bash
