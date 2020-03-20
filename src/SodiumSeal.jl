@@ -25,7 +25,7 @@ const SECRETKEYBYTES = Ref{Csize_t}()
 
 ### Errors ###
 
-struct SodiumError
+struct SodiumError <: Exception
     fun::Symbol
     code::Int
 end
